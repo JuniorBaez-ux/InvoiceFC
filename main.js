@@ -15,6 +15,9 @@ const numeroNGAW = process.env.NUMERO_NGAW || '18498893322';
 app.use(express.json());
 app.use(cors());
 
+app.get('/', (req, res) => res.send('Home Page Route'));
+app.get('/about', (req, res) => res.send('About Page Route'));
+
 app.post('/receive-message', (req, res) => {
     const { tutorname, clientname, cellphoneNumber, fdate } = req.body;
 
@@ -25,8 +28,10 @@ app.post('/receive-message', (req, res) => {
     res.sendStatus(200);
 })
 
-app.listen(3000, () => {
-    console.log('Server listening on port 3000');
+const port = process.env.PORT || 3000;
+
+app.listen(port, () => {
+    console.log('Server listening on port: ${port}');
 })
 
 const client = new Client({
