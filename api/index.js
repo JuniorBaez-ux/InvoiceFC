@@ -34,7 +34,13 @@ app.listen(port, () => {
     console.log('Server listening on port: ${port}');
 })
 
-const client = new Client();
+
+const client = new Client({
+    puppeteer: { 
+        //args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        headless: true
+    }
+});
 
 client.on('ready', () => {
     console.log('Client is ready!');
