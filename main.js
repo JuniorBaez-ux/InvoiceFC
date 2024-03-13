@@ -6,9 +6,11 @@ const fs = require('fs');
 const { x } = require('joi');
 const logo = 'logo.png';
 const cors = require('cors'); 
+require('dotenv').config();
+
 
 const app = express();
-const numeroNGAW = '18498893322';
+const numeroNGAW = process.env.NUMERO_NGAW || '18498893322';
 
 app.use(express.json());
 app.use(cors());
@@ -16,7 +18,9 @@ app.use(cors());
 app.post('/receive-message', (req, res) => {
     const { tutorname, clientname, cellphoneNumber, fdate } = req.body;
 
-    createInvociceNGAW(tutorname, clientname, cellphoneNumber, fdate);
+    const optionalNumber = req.body.whatsappNumber || numeroNGAW;
+
+    createInvociceNGAW(tutorname, clientname, cellphoneNumber, fdate, optionalNumber);
 
     res.sendStatus(200);
 })
@@ -46,7 +50,7 @@ function sendMessageWithInvoice(number, invoice, pdfName, fileSizeInBytes) {
     client.sendMessage(clientNumber, invoice);
 }
 
-function createInvociceNGAW(tutorname, clientname, cellphoneNumber, fdate) {
+function createInvociceNGAW(tutorname, clientname, cellphoneNumber, fdate, optionalNumber) {
     const doc = new PDFDocument;
 
     doc.image(logo, { width: 100, height: 100, align: 'center' , x: 250 , y: 10});
@@ -64,7 +68,7 @@ function createInvociceNGAW(tutorname, clientname, cellphoneNumber, fdate) {
         var pdfData = Buffer.concat(buffers);
         var fileSizeInBytes = pdfData.length; // Obtain the file size
         var pdfDataBase64 = pdfData.toString('base64');
-        sendMessageWithInvoice(numeroNGAW, pdfDataBase64, tutorname  + " - " + formatCustomDate12hr(fdate), fileSizeInBytes);
+        sendMessageWithInvoice(optionalNumber, pdfDataBase64, tutorname  + " - " + formatCustomDate12hr(fdate), fileSizeInBytes);
     });
 
     doc.pipe(fs.createWriteStream('invoice.pdf'));
