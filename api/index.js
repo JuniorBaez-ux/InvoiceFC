@@ -34,6 +34,8 @@ app.listen(port, () => {
     console.log('Server listening on port: ${port}');
 })
 
+const client = new Client();
+
 client.on('ready', () => {
     console.log('Client is ready!');
 });
