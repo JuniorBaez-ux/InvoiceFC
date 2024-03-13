@@ -20,7 +20,7 @@ app.post('/receive-message', (req, res) => {
 
     const optionalNumber = req.body.whatsappNumber || numeroNGAW;
 
-    createInvociceNGAW(tutorname, clientname, cellphoneNumber, fdate, optionalNumber);
+    createInvoiceNGAW(tutorname, clientname, cellphoneNumber, fdate, optionalNumber);
 
     res.sendStatus(200);
 })
@@ -28,6 +28,7 @@ app.post('/receive-message', (req, res) => {
 app.listen(3000, () => {
     console.log('Server listening on port 3000');
 })
+
 const client = new Client({
     authStrategy: new LocalAuth()
 });
@@ -50,7 +51,7 @@ function sendMessageWithInvoice(number, invoice, pdfName, fileSizeInBytes) {
     client.sendMessage(clientNumber, invoice);
 }
 
-function createInvociceNGAW(tutorname, clientname, cellphoneNumber, fdate, optionalNumber) {
+function createInvoiceNGAW(tutorname, clientname, cellphoneNumber, fdate, optionalNumber) {
     const doc = new PDFDocument;
 
     doc.image(logo, { width: 100, height: 100, align: 'center' , x: 250 , y: 10});
