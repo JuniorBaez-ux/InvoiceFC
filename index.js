@@ -7,7 +7,7 @@ const { x } = require('joi');
 const logo = 'logo.png';
 const cors = require('cors'); 
 require('dotenv').config();
-
+const ngrok = require("@ngrok/ngrok");
 
 const app = express();
 const numeroNGAW = process.env.NUMERO_NGAW || '18498893322';
@@ -34,12 +34,14 @@ app.listen(port, () => {
     console.log('Server listening on port: ${port}');
 })
 
-
 const client = new Client({
     puppeteer: { 
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
         headless: true
-    }
+    },
+    authStrategy: new LocalAuth({
+        dataPath: 'Sessions'
+    })
 });
 
 client.on('ready', () => {
@@ -51,8 +53,6 @@ client.on('qr', qr => {
 });
 
 client.initialize();
-
-
 
 function sendMessageWithInvoice(number, invoice, pdfName, fileSizeInBytes) {
     var clientNumber = number + "@c.us";
