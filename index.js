@@ -18,14 +18,16 @@ app.use(cors());
 app.get('/', (req, res) => res.send('Home Page Route'));
 app.get('/about', (req, res) => res.send('About Page Route'));
 
-app.post('/receive-message', (req, res) => {
-    const { tutorname, clientname, cellphoneNumber, fdate } = req.body;
+app.post('/receive-message', async (req, res) => {
+    const { tutorname, clientname, cellphoneNumber, fdate, fservicio } = req.body;
 
     const optionalNumber = req.body.whatsappNumber || numeroNGAW;
 
-    createInvoiceNGAW(tutorname, clientname, cellphoneNumber, fdate, optionalNumber);
+    await createInvoiceNGAW(tutorname, clientname, cellphoneNumber, fdate, fservicio, optionalNumber).then(() => {
+        res.sendStatus(200);
+        console.log("Invoice of: " + clientname + " Created");    
+    });
 
-    res.sendStatus(200);
 })
 
 const port = process.env.PORT || 3000;
@@ -57,10 +59,10 @@ client.initialize();
 function sendMessageWithInvoice(number, invoice, pdfName, fileSizeInBytes) {
     var clientNumber = number + "@c.us";
     var invoice = new MessageMedia("application/pdf", invoice, pdfName, fileSizeInBytes);
-    client.sendMessage(clientNumber, invoice);
+    client.sendMessage(clientNumber, invoice, {caption: 'Invoice'});
 }
 
-function createInvoiceNGAW(tutorname, clientname, cellphoneNumber, fdate, optionalNumber) {
+function createInvoiceNGAW(tutorname, clientname, cellphoneNumber, fdate, fservicio, optionalNumber) {
     const doc = new PDFDocument;
 
     doc.image(logo, { width: 100, height: 100, align: 'center' , x: 250 , y: 10});
@@ -70,7 +72,8 @@ function createInvoiceNGAW(tutorname, clientname, cellphoneNumber, fdate, option
     doc.text("Nombre del tutor: " + tutorname, 200, 180);
     doc.text("Nombre del paciente: " + clientname , 200 , 200);
     doc.text("Numero de telefono: " + cellphoneNumber , 200 , 220);
-    doc.text("Fecha de consulta: " + formatCustomDate12hr(fdate) , 200 , 240);
+    doc.text("Tipo de servicio solicitado: " + fservicio , 200 , 240);
+    doc.text("Fecha de consulta: " + formatCustomDate12hr(fdate) , 200 , 260);
 
     var buffers = [];
     doc.on('data', buffers.push.bind(buffers));
@@ -81,7 +84,7 @@ function createInvoiceNGAW(tutorname, clientname, cellphoneNumber, fdate, option
         sendMessageWithInvoice(optionalNumber, pdfDataBase64, tutorname  + " - " + formatCustomDate12hr(fdate), fileSizeInBytes);
     });
 
-    doc.pipe(fs.createWriteStream('invoice.pdf'));
+    // doc.pipe(fs.createWriteStream('invoice.pdf'));
 
 
     doc.end();
